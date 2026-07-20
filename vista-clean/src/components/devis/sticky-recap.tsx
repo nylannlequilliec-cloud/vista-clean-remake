@@ -188,9 +188,10 @@ function RecapHeadline({
   return (
     <span
       className={cn(
-        "text-lg font-bold text-foreground tabular-nums",
+        "text-xl font-bold tabular-nums bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent",
         className,
       )}
+      style={{ textShadow: "0 0 20px oklch(0.6 0.25 295 / 0.3)" }}
     >
       {formatEuro(recap.total ?? 0)}
     </span>

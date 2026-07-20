@@ -42,7 +42,10 @@ export function ProgressBar({
   const activeStep = steps[activeIndex];
 
   return (
-    <nav aria-label="Progression du questionnaire">
+    <nav
+      aria-label="Progression du questionnaire"
+      className="rounded-2xl border border-white/10 bg-card/60 p-4 shadow-xl shadow-primary/5 backdrop-blur-xl"
+    >
       <ol className="flex items-start">
         {steps.map((step, index) => {
           const isActive = index === activeIndex;

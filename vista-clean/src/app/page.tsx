@@ -1,6 +1,7 @@
 import { Navbar } from "@/components/layout/navbar";
 import { Hero } from "@/components/sections/hero";
 import { TrustBanner } from "@/components/sections/trust-banner";
+import { QuickEstimate } from "@/components/sections/quick-estimate";
 import { Services } from "@/components/sections/services";
 import { Process } from "@/components/sections/process";
 import { Team } from "@/components/sections/team";
@@ -19,6 +20,7 @@ export default function Home() {
       <main>
         <Hero />
         <TrustBanner />
+        <QuickEstimate />
         <Services />
         <Process />
         <Team />

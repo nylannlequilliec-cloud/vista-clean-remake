@@ -19,7 +19,7 @@
 // Requirements: 5.1, 5.2, 5.3, 5.4, 5.5
 
 import { useController, type UseFormReturn } from "react-hook-form";
-import { Check, Zap } from "lucide-react";
+import { Check, Clock, Zap } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { formatEuro } from "@/lib/devis/calculations";
@@ -93,8 +93,21 @@ function PackCard({ pack, selected, onSelect }: PackCardProps) {
       </div>
 
       <p className="mt-1 text-sm text-muted-foreground">
-        Durée&nbsp;: {pack.durationLabel}
+        <span className="inline-flex items-center gap-1.5">
+          <Clock aria-hidden="true" className="size-3.5 text-primary/70" />
+          Durée&nbsp;: {pack.durationLabel}
+        </span>
       </p>
+
+      {/* Visual duration indicator bar */}
+      <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+        <div
+          className={cn(
+            "h-full rounded-full bg-gradient-to-r from-primary/60 to-primary shadow-[0_0_6px_oklch(0.6_0.25_295_/_0.4)]",
+            pack.id === "confort" ? "w-[40%]" : "w-[80%]"
+          )}
+        />
+      </div>
 
       <ul className="mt-6 space-y-3">
         {pack.features.map((feature) => (

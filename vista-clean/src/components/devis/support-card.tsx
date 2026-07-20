@@ -57,7 +57,9 @@ export function SupportCard({ support, selected, onSelect }: SupportCardProps) {
       onClick={() => onSelect(support.id)}
       className={cn(
         // Cible tactile ≥ 44×44 px + mise en page de la carte.
-        "group relative flex min-h-[44px] w-full flex-col items-center justify-center gap-2 rounded-xl border-2 bg-card p-4 text-center transition-all outline-none select-none",
+        "group relative flex min-h-[44px] w-full flex-col items-center justify-center gap-2 rounded-xl border-2 bg-card p-4 text-center outline-none select-none",
+        // Micro-interactions : hover scale + glow, active press, smooth transition.
+        "transition-all duration-200 hover:scale-[1.02] hover:shadow-lg hover:shadow-primary/20 active:scale-[0.98]",
         // Focus clavier visible.
         "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
         // État non sélectionné : bordure discrète + survol.
@@ -68,12 +70,12 @@ export function SupportCard({ support, selected, onSelect }: SupportCardProps) {
           "border-primary bg-primary/5 text-foreground shadow-md shadow-primary/10"
       )}
     >
-      {/* Indicateur de sélection non chromatique : icône Check. */}
+      {/* Indicateur de sélection non chromatique : icône Check avec animation d'entrée. */}
       <span
         aria-hidden="true"
         className={cn(
           "absolute right-2 top-2 flex size-5 items-center justify-center rounded-full bg-primary text-primary-foreground transition-opacity",
-          selected ? "opacity-100" : "opacity-0"
+          selected ? "animate-in zoom-in-50 duration-200 opacity-100" : "opacity-0"
         )}
       >
         <Check className="size-3.5" />
