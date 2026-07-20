@@ -119,3 +119,67 @@ describe("isValidFrenchPhone", () => {
     expect(isValidFrenchPhone("abcdefghij")).toBe(false);
   });
 });
+
+import { devisSchema, stepSchemas } from "../schema";
+
+describe("devisSchema & lieuSchema security enhancements (input length limits)", () => {
+  it("devisSchema accepte des entrées de taille valide", () => {
+    const valid = devisSchema.safeParse({
+      prenom: "Jean",
+      telephone: "0612345678",
+      besoin: "Nettoyage complet de mon canapé",
+    });
+    expect(valid.success).toBe(true);
+  });
+
+  it("devisSchema rejette un prénom trop long (max 100)", () => {
+    const invalid = devisSchema.safeParse({
+      prenom: "a".repeat(101),
+      telephone: "0612345678",
+      besoin: "Besoin de nettoyage",
+    });
+    expect(invalid.success).toBe(false);
+    if (!invalid.success) {
+      expect(invalid.error.issues[0]?.message).toMatch(/le prénom ne peut pas dépasser 100 caractères/i);
+    }
+  });
+
+  it("devisSchema rejette un téléphone trop long (max 20)", () => {
+    const invalid = devisSchema.safeParse({
+      prenom: "Jean",
+      telephone: "0" + "6".repeat(20),
+      besoin: "Besoin de nettoyage",
+    });
+    expect(invalid.success).toBe(false);
+    if (!invalid.success) {
+      expect(invalid.error.issues[0]?.message).toMatch(/le numéro de téléphone ne peut pas dépasser 20 caractères/i);
+    }
+  });
+
+  it("devisSchema rejette un besoin trop long (max 2000)", () => {
+    const invalid = devisSchema.safeParse({
+      prenom: "Jean",
+      telephone: "0612345678",
+      besoin: "a".repeat(2001),
+    });
+    expect(invalid.success).toBe(false);
+    if (!invalid.success) {
+      expect(invalid.error.issues[0]?.message).toMatch(/la description du besoin ne peut pas dépasser 2000 caractères/i);
+    }
+  });
+
+  it("lieuSchema (stepSchemas.lieu) rejette une adresse trop longue (max 300)", () => {
+    const invalid = stepSchemas.lieu.safeParse({
+      lieu: {
+        type: "domicile",
+        address: "a".repeat(301),
+        addressValidated: true,
+        noElectricity: false,
+      },
+    });
+    expect(invalid.success).toBe(false);
+    if (!invalid.success) {
+      expect(invalid.error.issues[0]?.message).toMatch(/l'adresse ne peut pas dépasser 300 caractères/i);
+    }
+  });
+});
