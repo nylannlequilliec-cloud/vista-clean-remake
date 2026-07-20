@@ -189,6 +189,7 @@ function StepLieu({ form }: StepLieuProps) {
                 type="text"
                 inputMode="text"
                 autoComplete="street-address"
+                maxLength={300} // SECURITY: Limit input length to mitigate DoS/memory abuse
                 value={lieu.address}
                 onChange={(event) => handleAddressChange(event.target.value)}
                 aria-invalid={addressError !== null}

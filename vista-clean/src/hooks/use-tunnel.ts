@@ -99,6 +99,9 @@ async function initiatePaymentPlaceholder(
   _state: TunnelState,
   _pricing: PricingBreakdown,
 ): Promise<PaymentResult> {
+  // Mark as read to satisfy compiler/eslint unused variable checks
+  void _state;
+  void _pricing;
   // TODO(devis-questionnaire): appeler le prestataire de paiement sécurisé.
   return { success: true };
 }

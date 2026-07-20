@@ -104,6 +104,15 @@ const lieuSchema = z.object({
           });
         }
 
+        // SECURITY: Limit input length to prevent denial-of-service (DoS) and excessive memory/storage usage
+        if (lieu.address.length > 300) {
+          ctx.addIssue({
+            code: "custom",
+            message: "l'adresse ne peut pas dépasser 300 caractères",
+            path: ["address"],
+          });
+        }
+
         if (!lieu.addressValidated) {
           ctx.addIssue({
             code: "custom",
@@ -144,14 +153,21 @@ export const stepSchemas: Record<StepId, z.ZodType> = {
  * description du besoin non vides, téléphone français valide.
  */
 export const devisSchema = z.object({
-  prenom: z.string().trim().min(1, { message: "le prénom est requis" }),
+  // SECURITY: Limit input length to prevent denial-of-service (DoS) and excessive memory/storage usage
+  prenom: z
+    .string()
+    .trim()
+    .min(1, { message: "le prénom est requis" })
+    .max(100, { message: "le prénom ne peut pas dépasser 100 caractères" }),
   telephone: z
     .string()
+    .max(20, { message: "le numéro de téléphone ne peut pas dépasser 20 caractères" })
     .refine(isValidFrenchPhone, {
       message: "numéro de téléphone français invalide",
     }),
   besoin: z
     .string()
     .trim()
-    .min(1, { message: "la description du besoin est requise" }),
+    .min(1, { message: "la description du besoin est requise" })
+    .max(2000, { message: "la description du besoin ne peut pas dépasser 2000 caractères" }),
 });
