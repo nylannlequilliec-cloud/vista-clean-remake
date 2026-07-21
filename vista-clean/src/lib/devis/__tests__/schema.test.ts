@@ -5,7 +5,7 @@
 import { describe, expect, it } from "vitest";
 import fc from "fast-check";
 
-import { isValidFrenchPhone } from "../schema";
+import { isValidFrenchPhone, devisSchema, stepSchemas } from "../schema";
 
 const NUM_RUNS = 100;
 
@@ -117,5 +117,52 @@ describe("isValidFrenchPhone", () => {
     expect(isValidFrenchPhone("06 12 34 56")).toBe(false);
     expect(isValidFrenchPhone("+34 6 12 34 56 78")).toBe(false);
     expect(isValidFrenchPhone("abcdefghij")).toBe(false);
+  });
+
+  it("rejette les numéros de téléphone dépassant la limite de longueur de 30 caractères", () => {
+    const longPhone = "06" + " ".repeat(29);
+    expect(isValidFrenchPhone(longPhone)).toBe(false);
+  });
+});
+
+describe("devisSchema et stepSchemas - Limites de longueur de sécurité", () => {
+  it("rejette les valeurs dépassant la limite pour le prenom", () => {
+    const parsed = devisSchema.safeParse({
+      prenom: "a".repeat(101),
+      telephone: "0612345678",
+      besoin: "Nettoyage canapé",
+    });
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) {
+      expect(parsed.error.issues[0].message).toContain("le prénom est trop long");
+    }
+  });
+
+  it("rejette les valeurs dépassant la limite pour le besoin", () => {
+    const parsed = devisSchema.safeParse({
+      prenom: "Jean",
+      telephone: "0612345678",
+      besoin: "a".repeat(2001),
+    });
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) {
+      expect(parsed.error.issues[0].message).toContain("la description est trop longue");
+    }
+  });
+
+  it("rejette les valeurs de lieu d'adresse dépassant 300 caractères", () => {
+    const schemaLieu = stepSchemas.lieu;
+    const parsed = schemaLieu.safeParse({
+      lieu: {
+        type: "domicile",
+        address: "a".repeat(301),
+        addressValidated: true,
+        noElectricity: false,
+      },
+    });
+    expect(parsed.success).toBe(false);
+    if (!parsed.success) {
+      expect(parsed.error.issues[0].message).toContain("l'adresse est trop longue");
+    }
   });
 });

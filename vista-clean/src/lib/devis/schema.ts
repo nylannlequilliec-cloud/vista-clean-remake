@@ -21,7 +21,7 @@ import type { PackId, StepId, SupportId } from "./types";
  * Toute autre chaîne retourne `false`.
  */
 export function isValidFrenchPhone(value: string): boolean {
-  if (typeof value !== "string") {
+  if (typeof value !== "string" || value.length > 30) {
     return false;
   }
 
@@ -81,7 +81,7 @@ const lieuSchema = z.object({
   lieu: z
     .object({
       type: z.enum(["local", "domicile"]).nullable(),
-      address: z.string(),
+      address: z.string().max(300, { message: "l'adresse est trop longue (maximum 300 caractères)" }),
       addressValidated: z.boolean(),
       noElectricity: z.boolean(),
     })
@@ -100,6 +100,14 @@ const lieuSchema = z.object({
           ctx.addIssue({
             code: "custom",
             message: "une adresse valide est requise",
+            path: ["address"],
+          });
+        }
+
+        if (lieu.address.length > 300) {
+          ctx.addIssue({
+            code: "custom",
+            message: "l'adresse est trop longue (maximum 300 caractères)",
             path: ["address"],
           });
         }
@@ -144,14 +152,20 @@ export const stepSchemas: Record<StepId, z.ZodType> = {
  * description du besoin non vides, téléphone français valide.
  */
 export const devisSchema = z.object({
-  prenom: z.string().trim().min(1, { message: "le prénom est requis" }),
+  prenom: z
+    .string()
+    .trim()
+    .min(1, { message: "le prénom est requis" })
+    .max(100, { message: "le prénom est trop long (maximum 100 caractères)" }),
   telephone: z
     .string()
+    .max(30, { message: "le numéro de téléphone est trop long (maximum 30 caractères)" })
     .refine(isValidFrenchPhone, {
       message: "numéro de téléphone français invalide",
     }),
   besoin: z
     .string()
     .trim()
-    .min(1, { message: "la description du besoin est requise" }),
+    .min(1, { message: "la description du besoin est requise" })
+    .max(2000, { message: "la description est trop longue (maximum 2000 caractères)" }),
 });
