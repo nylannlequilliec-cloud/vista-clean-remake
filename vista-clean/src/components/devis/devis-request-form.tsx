@@ -117,6 +117,7 @@ function DevisRequestForm({ form, onSubmit }: DevisRequestFormProps) {
         <input
           id={prenomId}
           type="text"
+          maxLength={100}
           autoComplete="given-name"
           value={devis.prenom}
           onChange={(event) => {
@@ -153,6 +154,7 @@ function DevisRequestForm({ form, onSubmit }: DevisRequestFormProps) {
           id={telephoneId}
           type="tel"
           inputMode="tel"
+          maxLength={30}
           autoComplete="tel"
           value={devis.telephone}
           onChange={(event) => {
@@ -188,6 +190,7 @@ function DevisRequestForm({ form, onSubmit }: DevisRequestFormProps) {
         <textarea
           id={besoinId}
           rows={5}
+          maxLength={2000}
           value={devis.besoin}
           onChange={(event) => {
             form.setValue("devis.besoin", event.target.value, { shouldDirty: true });
