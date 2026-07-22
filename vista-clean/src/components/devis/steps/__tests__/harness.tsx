@@ -7,7 +7,7 @@
 // expose l'instance du formulaire aux assertions via un objet ref mutable, afin
 // de pouvoir observer l'`État_Tunnel` après interaction.
 
-import type { MutableRefObject, ReactNode } from "react";
+import { useEffect, type MutableRefObject, type ReactNode } from "react";
 import { useForm, type UseFormReturn } from "react-hook-form";
 
 import { INITIAL_TUNNEL_STATE } from "@/hooks/use-tunnel";
@@ -43,11 +43,12 @@ export function FormHarness({ initial, formRef, children }: FormHarnessProps) {
     mode: "onChange",
   });
 
-  // `useForm` renvoie une instance stable : l'assigner pendant le rendu suffit
-  // pour que `form.getValues()` reflète toujours l'état courant dans les tests.
-  if (formRef) {
-    formRef.current = form;
-  }
+  // Met à jour la ref via un effet pour éviter l'erreur de rendu concurrent/référence.
+  useEffect(() => {
+    if (formRef) {
+      formRef.current = form;
+    }
+  }, [form, formRef]);
 
   return <>{children(form)}</>;
 }

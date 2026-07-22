@@ -1,0 +1,13 @@
+
+> vista-clean@0.1.0 dev /app/vista-clean
+> next dev
+
+▲ Next.js 16.2.10 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.2:3000
+✓ Ready in 547ms
+
+○ Compiling /reservation ...
+ HEAD /reservation 200 in 5.8s (next.js: 5.2s, application-code: 628ms)
+ GET /reservation 200 in 176ms (next.js: 11ms, application-code: 165ms)
+ GET /reservation 200 in 135ms (next.js: 4ms, application-code: 131ms)
