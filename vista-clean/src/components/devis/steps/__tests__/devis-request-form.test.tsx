@@ -89,4 +89,32 @@ describe("DevisRequestForm", () => {
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
   });
+
+  it("affiche l'erreur pour un prénom trop long", async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+
+    render(
+      <FormHarness
+        initial={{
+          devis: {
+            prenom: "a".repeat(51),
+            telephone: "0612345678",
+            besoin: "Nettoyage complet",
+          },
+        }}
+      >
+        {(form) => <DevisRequestForm form={form} onSubmit={onSubmit} />}
+      </FormHarness>,
+    );
+
+    await user.click(
+      screen.getByRole("button", { name: /Envoyer ma demande de devis/i }),
+    );
+
+    expect(
+      screen.getByText(/le prénom ne doit pas dépasser 50 caractères/i),
+    ).toBeInTheDocument();
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
 });

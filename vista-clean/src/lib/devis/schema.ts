@@ -81,7 +81,9 @@ const lieuSchema = z.object({
   lieu: z
     .object({
       type: z.enum(["local", "domicile"]).nullable(),
-      address: z.string(),
+      address: z
+        .string()
+        .max(200, { message: "l'adresse ne doit pas dépasser 200 caractères" }),
       addressValidated: z.boolean(),
       noElectricity: z.boolean(),
     })
@@ -100,6 +102,14 @@ const lieuSchema = z.object({
           ctx.addIssue({
             code: "custom",
             message: "une adresse valide est requise",
+            path: ["address"],
+          });
+        }
+
+        if (lieu.address.length > 200) {
+          ctx.addIssue({
+            code: "custom",
+            message: "l'adresse ne doit pas dépasser 200 caractères",
             path: ["address"],
           });
         }
@@ -141,17 +151,23 @@ export const stepSchemas: Record<StepId, z.ZodType> = {
 
 /**
  * Schéma du formulaire de demande de devis (`Mode_Devis`) : prénom et
- * description du besoin non vides, téléphone français valide.
+ * description du besoin non vides, téléphone français valide, et limites de longueur strictes.
  */
 export const devisSchema = z.object({
-  prenom: z.string().trim().min(1, { message: "le prénom est requis" }),
+  prenom: z
+    .string()
+    .trim()
+    .min(1, { message: "le prénom est requis" })
+    .max(50, { message: "le prénom ne doit pas dépasser 50 caractères" }),
   telephone: z
     .string()
+    .max(30, { message: "le numéro de téléphone ne doit pas dépasser 30 caractères" })
     .refine(isValidFrenchPhone, {
       message: "numéro de téléphone français invalide",
     }),
   besoin: z
     .string()
     .trim()
-    .min(1, { message: "la description du besoin est requise" }),
+    .min(1, { message: "la description du besoin est requise" })
+    .max(1000, { message: "la description du besoin ne doit pas dépasser 1000 caractères" }),
 });

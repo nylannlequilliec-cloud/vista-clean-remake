@@ -5,7 +5,7 @@
 import { describe, expect, it } from "vitest";
 import fc from "fast-check";
 
-import { isValidFrenchPhone } from "../schema";
+import { isValidFrenchPhone, devisSchema, stepSchemas } from "../schema";
 
 const NUM_RUNS = 100;
 
@@ -117,5 +117,54 @@ describe("isValidFrenchPhone", () => {
     expect(isValidFrenchPhone("06 12 34 56")).toBe(false);
     expect(isValidFrenchPhone("+34 6 12 34 56 78")).toBe(false);
     expect(isValidFrenchPhone("abcdefghij")).toBe(false);
+  });
+});
+
+describe("devisSchema et validations de longueur", () => {
+  it("valide les limites de longueur sur prenom, telephone et besoin", () => {
+    const invalidPrenom = devisSchema.safeParse({
+      prenom: "a".repeat(51),
+      telephone: "0612345678",
+      besoin: "Besoin de nettoyage",
+    });
+    expect(invalidPrenom.success).toBe(false);
+    if (!invalidPrenom.success) {
+      expect(invalidPrenom.error.issues[0].message).toContain("dépasser 50 caractères");
+    }
+
+    const invalidPhone = devisSchema.safeParse({
+      prenom: "Jean",
+      telephone: "0612345678" + "0".repeat(21),
+      besoin: "Besoin de nettoyage",
+    });
+    expect(invalidPhone.success).toBe(false);
+    if (!invalidPhone.success) {
+      expect(invalidPhone.error.issues[0].message).toContain("dépasser 30 caractères");
+    }
+
+    const invalidBesoin = devisSchema.safeParse({
+      prenom: "Jean",
+      telephone: "0612345678",
+      besoin: "a".repeat(1001),
+    });
+    expect(invalidBesoin.success).toBe(false);
+    if (!invalidBesoin.success) {
+      expect(invalidBesoin.error.issues[0].message).toContain("dépasser 1000 caractères");
+    }
+  });
+
+  it("valide les limites de longueur sur l'adresse dans lieuSchema", () => {
+    const invalidAddress = stepSchemas.lieu.safeParse({
+      lieu: {
+        type: "domicile",
+        address: "a".repeat(201),
+        addressValidated: true,
+        noElectricity: false,
+      }
+    });
+    expect(invalidAddress.success).toBe(false);
+    if (!invalidAddress.success) {
+      expect(invalidAddress.error.issues[0].message).toContain("dépasser 200 caractères");
+    }
   });
 });
