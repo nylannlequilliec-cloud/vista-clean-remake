@@ -144,14 +144,20 @@ export const stepSchemas: Record<StepId, z.ZodType> = {
  * description du besoin non vides, téléphone français valide.
  */
 export const devisSchema = z.object({
-  prenom: z.string().trim().min(1, { message: "le prénom est requis" }),
+  prenom: z
+    .string()
+    .trim()
+    .min(1, { message: "le prénom est requis" })
+    .max(50, { message: "le prénom ne doit pas dépasser 50 caractères" }),
   telephone: z
     .string()
+    .max(30, { message: "le numéro de téléphone ne doit pas dépasser 30 caractères" })
     .refine(isValidFrenchPhone, {
       message: "numéro de téléphone français invalide",
     }),
   besoin: z
     .string()
     .trim()
-    .min(1, { message: "la description du besoin est requise" }),
+    .min(1, { message: "la description du besoin est requise" })
+    .max(1000, { message: "la description ne doit pas dépasser 1000 caractères" }),
 });
