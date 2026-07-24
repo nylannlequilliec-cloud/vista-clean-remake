@@ -5,7 +5,7 @@
 import { describe, expect, it } from "vitest";
 import fc from "fast-check";
 
-import { isValidFrenchPhone } from "../schema";
+import { isValidFrenchPhone, devisSchema, stepSchemas } from "../schema";
 
 const NUM_RUNS = 100;
 
@@ -117,5 +117,66 @@ describe("isValidFrenchPhone", () => {
     expect(isValidFrenchPhone("06 12 34 56")).toBe(false);
     expect(isValidFrenchPhone("+34 6 12 34 56 78")).toBe(false);
     expect(isValidFrenchPhone("abcdefghij")).toBe(false);
+  });
+});
+
+describe("Zod validation max length limits", () => {
+  it("rejette un prénom dépassant 100 caractères", () => {
+    const prenomTropLong = "a".repeat(101);
+    const payload = {
+      prenom: prenomTropLong,
+      telephone: "06 12 34 56 78",
+      besoin: "Nettoyage canapé",
+    };
+    const result = devisSchema.safeParse(payload);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0]?.message).toContain("100 caractères");
+    }
+  });
+
+  it("rejette un téléphone dépassant 30 caractères", () => {
+    const telephoneTropLong = "06 12 34 56 78" + "0".repeat(20);
+    const payload = {
+      prenom: "Jean",
+      telephone: telephoneTropLong,
+      besoin: "Nettoyage canapé",
+    };
+    const result = devisSchema.safeParse(payload);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0]?.message).toContain("30 caractères");
+    }
+  });
+
+  it("rejette une description du besoin dépassant 1000 caractères", () => {
+    const besoinTropLong = "a".repeat(1001);
+    const payload = {
+      prenom: "Jean",
+      telephone: "06 12 34 56 78",
+      besoin: besoinTropLong,
+    };
+    const result = devisSchema.safeParse(payload);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0]?.message).toContain("1000 caractères");
+    }
+  });
+
+  it("rejette une adresse dépassant 255 caractères", () => {
+    const adresseTropLongue = "a".repeat(256);
+    const payload = {
+      lieu: {
+        type: "domicile",
+        address: adresseTropLongue,
+        addressValidated: true,
+        noElectricity: false,
+      },
+    };
+    const result = stepSchemas.lieu.safeParse(payload);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0]?.message).toContain("255 caractères");
+    }
   });
 });
