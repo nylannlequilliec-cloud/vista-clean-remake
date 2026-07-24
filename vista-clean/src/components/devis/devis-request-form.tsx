@@ -123,6 +123,7 @@ function DevisRequestForm({ form, onSubmit }: DevisRequestFormProps) {
             form.setValue("devis.prenom", event.target.value, { shouldDirty: true });
             clearError("prenom");
           }}
+          maxLength={100}
           aria-required="true"
           aria-invalid={errors.prenom !== undefined}
           aria-describedby={errors.prenom !== undefined ? prenomErrorId : undefined}
@@ -159,6 +160,7 @@ function DevisRequestForm({ form, onSubmit }: DevisRequestFormProps) {
             form.setValue("devis.telephone", event.target.value, { shouldDirty: true });
             clearError("telephone");
           }}
+          maxLength={30}
           aria-required="true"
           aria-invalid={errors.telephone !== undefined}
           aria-describedby={errors.telephone !== undefined ? telephoneErrorId : undefined}
@@ -193,6 +195,7 @@ function DevisRequestForm({ form, onSubmit }: DevisRequestFormProps) {
             form.setValue("devis.besoin", event.target.value, { shouldDirty: true });
             clearError("besoin");
           }}
+          maxLength={1000}
           aria-required="true"
           aria-invalid={errors.besoin !== undefined}
           aria-describedby={errors.besoin !== undefined ? besoinErrorId : undefined}

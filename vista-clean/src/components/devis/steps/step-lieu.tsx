@@ -191,6 +191,7 @@ function StepLieu({ form }: StepLieuProps) {
                 autoComplete="street-address"
                 value={lieu.address}
                 onChange={(event) => handleAddressChange(event.target.value)}
+                maxLength={255}
                 aria-invalid={addressError !== null}
                 aria-describedby={addressError !== null ? addressErrorId : undefined}
                 placeholder="12 rue de la Paix, 94400 Vitry-sur-Seine"

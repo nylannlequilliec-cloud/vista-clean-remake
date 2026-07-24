@@ -81,7 +81,9 @@ const lieuSchema = z.object({
   lieu: z
     .object({
       type: z.enum(["local", "domicile"]).nullable(),
-      address: z.string(),
+      address: z
+        .string()
+        .max(255, { message: "l'adresse ne peut pas dépasser 255 caractères" }),
       addressValidated: z.boolean(),
       noElectricity: z.boolean(),
     })
@@ -144,14 +146,20 @@ export const stepSchemas: Record<StepId, z.ZodType> = {
  * description du besoin non vides, téléphone français valide.
  */
 export const devisSchema = z.object({
-  prenom: z.string().trim().min(1, { message: "le prénom est requis" }),
+  prenom: z
+    .string()
+    .trim()
+    .min(1, { message: "le prénom est requis" })
+    .max(100, { message: "le prénom ne peut pas dépasser 100 caractères" }),
   telephone: z
     .string()
+    .max(30, { message: "le numéro de téléphone ne peut pas dépasser 30 caractères" })
     .refine(isValidFrenchPhone, {
       message: "numéro de téléphone français invalide",
     }),
   besoin: z
     .string()
     .trim()
-    .min(1, { message: "la description du besoin est requise" }),
+    .min(1, { message: "la description du besoin est requise" })
+    .max(1000, { message: "la description du besoin ne peut pas dépasser 1000 caractères" }),
 });
