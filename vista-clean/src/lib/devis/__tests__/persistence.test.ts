@@ -45,15 +45,15 @@ const arbTunnelState: fc.Arbitrary<TunnelState> = fc.record({
   options: fc.array(fc.string()),
   lieu: fc.record({
     type: fc.constantFrom<LieuType | null>(...lieuTypes, null),
-    address: fc.string(),
+    address: fc.string({ maxLength: 250 }),
     addressValidated: fc.boolean(),
     noElectricity: fc.boolean(),
   }),
   creneauId: fc.option(fc.string(), { nil: null }),
   devis: fc.record({
-    prenom: fc.string(),
-    telephone: fc.string(),
-    besoin: fc.string(),
+    prenom: fc.string({ maxLength: 50 }),
+    telephone: fc.string({ maxLength: 30 }),
+    besoin: fc.string({ maxLength: 1000 }),
   }),
 });
 

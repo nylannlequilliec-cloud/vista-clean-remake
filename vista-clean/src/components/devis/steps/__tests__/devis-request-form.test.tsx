@@ -7,12 +7,16 @@
 //
 // Requirements: 4.3, 4.4, 9.5, 13.1, 13.2, 13.5
 
-import { render, screen } from "@testing-library/react";
+import { render, screen, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import { DevisRequestForm } from "../../devis-request-form";
-import { FormHarness } from "./harness";
+import { FormHarness, type FormRef } from "./harness";
+
+function makeFormRef(): FormRef {
+  return { current: null };
+}
 
 describe("DevisRequestForm", () => {
   it("affiche les erreurs françaises requises lors d'une soumission vide", async () => {
@@ -88,5 +92,39 @@ describe("DevisRequestForm", () => {
     );
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  it("affiche des erreurs lorsque les entrées dépassent les limites de longueur", async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    const formRef = makeFormRef();
+
+    render(
+      <FormHarness formRef={formRef}>
+        {(form) => <DevisRequestForm form={form} onSubmit={onSubmit} />}
+      </FormHarness>,
+    );
+
+    // Bypasse le maxLength HTML en modifiant l'état directement
+    act(() => {
+      formRef.current?.setValue("devis.prenom", "A".repeat(51));
+      formRef.current?.setValue("devis.telephone", "0" + "1".repeat(30));
+      formRef.current?.setValue("devis.besoin", "A".repeat(1001));
+    });
+
+    await user.click(
+      screen.getByRole("button", { name: /Envoyer ma demande de devis/i }),
+    );
+
+    expect(
+      screen.getByText(/le prénom ne doit pas dépasser 50 caractères/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/le numéro de téléphone ne doit pas dépasser 30 caractères/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/la description du besoin ne doit pas dépasser 1000 caractères/i),
+    ).toBeInTheDocument();
+    expect(onSubmit).not.toHaveBeenCalled();
   });
 });

@@ -98,7 +98,13 @@ function StepLieu({ form }: StepLieuProps) {
       setAddressError(ADDRESS_REQUIRED_MESSAGE);
       return;
     }
-    // Adresse renseignée : on valide, ce qui déclenche le calcul des
+    if (current.length > 250) {
+      // Adresse trop longue.
+      form.setValue("lieu.addressValidated", false, { shouldDirty: true });
+      setAddressError("L'adresse ne doit pas dépasser 250 caractères.");
+      return;
+    }
+    // Adresse renseignée et de longueur valide : on valide, ce qui déclenche le calcul des
     // Frais_Déplacement dans la couche logique (Requirement 7.4).
     form.setValue("lieu.addressValidated", true, {
       shouldDirty: true,
@@ -190,6 +196,7 @@ function StepLieu({ form }: StepLieuProps) {
                 inputMode="text"
                 autoComplete="street-address"
                 value={lieu.address}
+                maxLength={250}
                 onChange={(event) => handleAddressChange(event.target.value)}
                 aria-invalid={addressError !== null}
                 aria-describedby={addressError !== null ? addressErrorId : undefined}

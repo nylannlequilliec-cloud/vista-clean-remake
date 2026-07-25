@@ -119,6 +119,7 @@ function DevisRequestForm({ form, onSubmit }: DevisRequestFormProps) {
           type="text"
           autoComplete="given-name"
           value={devis.prenom}
+          maxLength={50}
           onChange={(event) => {
             form.setValue("devis.prenom", event.target.value, { shouldDirty: true });
             clearError("prenom");
@@ -155,6 +156,7 @@ function DevisRequestForm({ form, onSubmit }: DevisRequestFormProps) {
           inputMode="tel"
           autoComplete="tel"
           value={devis.telephone}
+          maxLength={30}
           onChange={(event) => {
             form.setValue("devis.telephone", event.target.value, { shouldDirty: true });
             clearError("telephone");
@@ -189,6 +191,7 @@ function DevisRequestForm({ form, onSubmit }: DevisRequestFormProps) {
           id={besoinId}
           rows={5}
           value={devis.besoin}
+          maxLength={1000}
           onChange={(event) => {
             form.setValue("devis.besoin", event.target.value, { shouldDirty: true });
             clearError("besoin");
