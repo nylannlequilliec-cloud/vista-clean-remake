@@ -45,15 +45,15 @@ export const tunnelStateSchema: z.ZodType<TunnelState> = z.strictObject({
   options: z.array(z.string()),
   lieu: z.strictObject({
     type: lieuTypeSchema.nullable(),
-    address: z.string(),
+    address: z.string().max(250),
     addressValidated: z.boolean(),
     noElectricity: z.boolean(),
   }),
   creneauId: z.string().nullable(),
   devis: z.strictObject({
-    prenom: z.string(),
-    telephone: z.string(),
-    besoin: z.string(),
+    prenom: z.string().max(50),
+    telephone: z.string().max(30),
+    besoin: z.string().max(1000),
   }),
 });
 

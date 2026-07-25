@@ -8,7 +8,7 @@
 //
 // Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 13.3, 13.4
 
-import { render, screen } from "@testing-library/react";
+import { render, screen, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 
@@ -133,5 +133,29 @@ describe("StepLieu", () => {
     expect(
       screen.queryByText(WARNING_GROUPE_ELECTROGENE),
     ).not.toBeInTheDocument();
+  });
+
+  it("affiche l'erreur de longueur si l'adresse dépasse 250 caractères", async () => {
+    const user = userEvent.setup();
+    const formRef = makeFormRef();
+
+    render(
+      <FormHarness formRef={formRef}>
+        {(form) => <StepLieu form={form} />}
+      </FormHarness>,
+    );
+
+    await user.click(screen.getByRole("radio", { name: /À domicile/i }));
+
+    // Bypasse le maxLength HTML en modifiant l'état directement
+    act(() => {
+      formRef.current?.setValue("lieu.address", "A".repeat(251));
+    });
+    await user.click(screen.getByRole("button", { name: /Valider l'adresse/i }));
+
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "L'adresse ne doit pas dépasser 250 caractères.",
+    );
+    expect(formRef.current?.getValues().lieu.addressValidated).toBe(false);
   });
 });
