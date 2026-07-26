@@ -190,6 +190,7 @@ function StepLieu({ form }: StepLieuProps) {
                 inputMode="text"
                 autoComplete="street-address"
                 value={lieu.address}
+                maxLength={200}
                 onChange={(event) => handleAddressChange(event.target.value)}
                 aria-invalid={addressError !== null}
                 aria-describedby={addressError !== null ? addressErrorId : undefined}
