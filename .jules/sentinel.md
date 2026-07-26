@@ -1,0 +1,4 @@
+## 2026-07-20 - [Input Length Limits on Persistent State]
+**Vulnerability:** When a React application persists forms or tunnel state directly into `localStorage` on any state update, the lack of maximum length constraints on frontend `<input>`/`<textarea>` elements and Zod schemas allows a malicious payload to immediately exceed the standard browser limit of ~5MB. This throws a `QuotaExceededError` and leads to client-side Denial of Service (DoS) by crashing the app.
+**Learning:** Security must be applied in depth: both at the validation layer (Zod schemas) and at the presentation layer (using `maxLength` HTML attributes). This prevents excessive state growth before serialization or persistence occurs.
+**Prevention:** For any user inputs that are serialized and stored inside persistent storage (e.g., localStorage, sessionStorage), always enforce strict, realistic maximum-length constraints both in the frontend markup and the corresponding validation schema.

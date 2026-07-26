@@ -5,7 +5,7 @@
 import { describe, expect, it } from "vitest";
 import fc from "fast-check";
 
-import { isValidFrenchPhone } from "../schema";
+import { isValidFrenchPhone, devisSchema, stepSchemas } from "../schema";
 
 const NUM_RUNS = 100;
 
@@ -117,5 +117,62 @@ describe("isValidFrenchPhone", () => {
     expect(isValidFrenchPhone("06 12 34 56")).toBe(false);
     expect(isValidFrenchPhone("+34 6 12 34 56 78")).toBe(false);
     expect(isValidFrenchPhone("abcdefghij")).toBe(false);
+  });
+});
+
+describe("schema length limits security validation", () => {
+  it("rejette un prénom trop long dans devisSchema (limite 100)", () => {
+    const longPrenom = "a".repeat(101);
+    const result = devisSchema.safeParse({
+      prenom: longPrenom,
+      telephone: "06 12 34 56 78",
+      besoin: "Nettoyage canapé",
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toContain("trop long");
+    }
+  });
+
+  it("rejette un téléphone trop long dans devisSchema (limite 30)", () => {
+    const longPhone = "06" + "1".repeat(29);
+    const result = devisSchema.safeParse({
+      prenom: "Jean",
+      telephone: longPhone,
+      besoin: "Nettoyage canapé",
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toContain("trop long");
+    }
+  });
+
+  it("rejette une description du besoin trop longue dans devisSchema (limite 1000)", () => {
+    const longBesoin = "a".repeat(1001);
+    const result = devisSchema.safeParse({
+      prenom: "Jean",
+      telephone: "06 12 34 56 78",
+      besoin: longBesoin,
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toContain("trop longue");
+    }
+  });
+
+  it("rejette une adresse trop longue dans stepSchemas.lieu (limite 200)", () => {
+    const longAddress = "a".repeat(201);
+    const result = stepSchemas.lieu.safeParse({
+      lieu: {
+        type: "domicile",
+        address: longAddress,
+        addressValidated: true,
+        noElectricity: false,
+      }
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toContain("trop longue");
+    }
   });
 });
