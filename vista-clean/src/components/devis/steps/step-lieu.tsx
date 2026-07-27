@@ -98,6 +98,11 @@ function StepLieu({ form }: StepLieuProps) {
       setAddressError(ADDRESS_REQUIRED_MESSAGE);
       return;
     }
+    if (current.length > 200) {
+      form.setValue("lieu.addressValidated", false, { shouldDirty: true });
+      setAddressError("L'adresse est trop longue (max 200 caractères).");
+      return;
+    }
     // Adresse renseignée : on valide, ce qui déclenche le calcul des
     // Frais_Déplacement dans la couche logique (Requirement 7.4).
     form.setValue("lieu.addressValidated", true, {
@@ -191,6 +196,7 @@ function StepLieu({ form }: StepLieuProps) {
                 autoComplete="street-address"
                 value={lieu.address}
                 onChange={(event) => handleAddressChange(event.target.value)}
+                maxLength={200}
                 aria-invalid={addressError !== null}
                 aria-describedby={addressError !== null ? addressErrorId : undefined}
                 placeholder="12 rue de la Paix, 94400 Vitry-sur-Seine"
