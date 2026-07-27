@@ -5,7 +5,7 @@
 import { describe, expect, it } from "vitest";
 import fc from "fast-check";
 
-import { isValidFrenchPhone } from "../schema";
+import { isValidFrenchPhone, devisSchema, stepSchemas } from "../schema";
 
 const NUM_RUNS = 100;
 
@@ -117,5 +117,87 @@ describe("isValidFrenchPhone", () => {
     expect(isValidFrenchPhone("06 12 34 56")).toBe(false);
     expect(isValidFrenchPhone("+34 6 12 34 56 78")).toBe(false);
     expect(isValidFrenchPhone("abcdefghij")).toBe(false);
+  });
+});
+
+describe("devisSchema validations - security checks", () => {
+  it("valide des données conformes aux limites", () => {
+    const validData = {
+      prenom: "Jean",
+      telephone: "0612345678",
+      besoin: "Nettoyage de canapé de taille moyenne",
+    };
+    const result = devisSchema.safeParse(validData);
+    expect(result.success).toBe(true);
+  });
+
+  it("rejette un prénom trop long (max 100 caractères)", () => {
+    const invalidData = {
+      prenom: "A".repeat(101),
+      telephone: "0612345678",
+      besoin: "Nettoyage",
+    };
+    const result = devisSchema.safeParse(invalidData);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toContain("le prénom est trop long");
+    }
+  });
+
+  it("rejette un téléphone trop long (max 30 caractères)", () => {
+    const invalidData = {
+      prenom: "Jean",
+      telephone: "0612345678" + "0".repeat(25),
+      besoin: "Nettoyage",
+    };
+    const result = devisSchema.safeParse(invalidData);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toContain("le numéro de téléphone est trop long");
+    }
+  });
+
+  it("rejette une description de besoin trop longue (max 1000 caractères)", () => {
+    const invalidData = {
+      prenom: "Jean",
+      telephone: "0612345678",
+      besoin: "A".repeat(1001),
+    };
+    const result = devisSchema.safeParse(invalidData);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toContain("la description du besoin est trop longue");
+    }
+  });
+});
+
+describe("lieuSchema validations - security checks", () => {
+  it("valide une adresse de longueur normale (<= 200)", () => {
+    const validLieu = {
+      lieu: {
+        type: "domicile",
+        address: "12 rue de la Paix, Vitry",
+        addressValidated: true,
+        noElectricity: false,
+      }
+    };
+    const result = stepSchemas.lieu.safeParse(validLieu);
+    expect(result.success).toBe(true);
+  });
+
+  it("rejette une adresse trop longue (> 200)", () => {
+    const invalidLieu = {
+      lieu: {
+        type: "domicile",
+        address: "A".repeat(201),
+        addressValidated: true,
+        noElectricity: false,
+      }
+    };
+    const result = stepSchemas.lieu.safeParse(invalidLieu);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toContain("l'adresse est trop longue");
+    }
   });
 });
