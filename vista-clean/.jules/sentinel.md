@@ -1,0 +1,4 @@
+## 2025-05-18 - Input Length Constraint Validation to Prevent LocalStorage DOS
+**Vulnerability:** Unbounded input fields (prenom, telephone, besoin, address) can allow a malicious user to input very large text blocks. When the state is persisted to `localStorage` (which typically has a strict 5MB limit), this could lead to `QuotaExceededError` crashes, degrading user experience or corrupting client-side application state.
+**Learning:** For application states persisted directly to client storage (like `localStorage`), validating maximum lengths via Zod (schemas) and HTML element inputs (`maxLength`) acts as an essential defense-in-depth layer to prevent storage DoS/crashes.
+**Prevention:** Always enforce strict maximum length limits on free-form text input schemas and HTML input/textarea elements when state is serialized and persisted.
