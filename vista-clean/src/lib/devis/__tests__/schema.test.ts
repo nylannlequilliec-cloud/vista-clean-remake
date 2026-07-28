@@ -5,7 +5,7 @@
 import { describe, expect, it } from "vitest";
 import fc from "fast-check";
 
-import { isValidFrenchPhone } from "../schema";
+import { isValidFrenchPhone, devisSchema, stepSchemas } from "../schema";
 
 const NUM_RUNS = 100;
 
@@ -117,5 +117,93 @@ describe("isValidFrenchPhone", () => {
     expect(isValidFrenchPhone("06 12 34 56")).toBe(false);
     expect(isValidFrenchPhone("+34 6 12 34 56 78")).toBe(false);
     expect(isValidFrenchPhone("abcdefghij")).toBe(false);
+  });
+});
+
+describe("devisSchema length constraints", () => {
+  it("rejette les prénoms dépassant 100 caractères", () => {
+    const validData = {
+      prenom: "A".repeat(100),
+      telephone: "0612345678",
+      besoin: "Besoin de nettoyage",
+    };
+    expect(devisSchema.safeParse(validData).success).toBe(true);
+
+    const invalidData = {
+      ...validData,
+      prenom: "A".repeat(101),
+    };
+    const result = devisSchema.safeParse(invalidData);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toContain("le prénom est trop long");
+    }
+  });
+
+  it("rejette les numéros de téléphone dépassant 30 caractères", () => {
+    const validData = {
+      prenom: "Jean",
+      telephone: "0612345678",
+      besoin: "Besoin de nettoyage",
+    };
+    expect(devisSchema.safeParse(validData).success).toBe(true);
+
+    const invalidData = {
+      ...validData,
+      telephone: "0612345678" + " ".repeat(21),
+    };
+    const result = devisSchema.safeParse(invalidData);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toContain("le numéro de téléphone est trop long");
+    }
+  });
+
+  it("rejette les descriptions de besoin dépassant 2000 caractères", () => {
+    const validData = {
+      prenom: "Jean",
+      telephone: "0612345678",
+      besoin: "B".repeat(2000),
+    };
+    expect(devisSchema.safeParse(validData).success).toBe(true);
+
+    const invalidData = {
+      ...validData,
+      besoin: "B".repeat(2001),
+    };
+    const result = devisSchema.safeParse(invalidData);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toContain("la description du besoin est trop longue");
+    }
+  });
+});
+
+describe("lieuSchema length constraints", () => {
+  it("rejette les adresses dépassant 300 caractères", () => {
+    const lieuSchema = stepSchemas.lieu;
+    const validData = {
+      lieu: {
+        type: "domicile",
+        address: "A".repeat(300),
+        addressValidated: true,
+        noElectricity: false,
+      }
+    };
+    expect(lieuSchema.safeParse(validData).success).toBe(true);
+
+    const invalidData = {
+      lieu: {
+        type: "domicile",
+        address: "A".repeat(301),
+        addressValidated: true,
+        noElectricity: false,
+      }
+    };
+    const result = lieuSchema.safeParse(invalidData);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toContain("l'adresse est trop longue");
+    }
   });
 });
