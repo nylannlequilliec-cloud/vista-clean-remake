@@ -42,18 +42,18 @@ const lieuTypes: LieuType[] = ["local", "domicile"];
 const arbTunnelState: fc.Arbitrary<TunnelState> = fc.record({
   support: fc.constantFrom<SupportId | null>(...supportIds, null),
   pack: fc.constantFrom<PackId | null>(...packIds, null),
-  options: fc.array(fc.string()),
+  options: fc.array(fc.string({ maxLength: 100 })),
   lieu: fc.record({
     type: fc.constantFrom<LieuType | null>(...lieuTypes, null),
-    address: fc.string(),
+    address: fc.string({ maxLength: 300 }),
     addressValidated: fc.boolean(),
     noElectricity: fc.boolean(),
   }),
-  creneauId: fc.option(fc.string(), { nil: null }),
+  creneauId: fc.option(fc.string({ maxLength: 50 }), { nil: null }),
   devis: fc.record({
-    prenom: fc.string(),
-    telephone: fc.string(),
-    besoin: fc.string(),
+    prenom: fc.string({ maxLength: 100 }),
+    telephone: fc.string({ maxLength: 30 }),
+    besoin: fc.string({ maxLength: 2000 }),
   }),
 });
 
@@ -112,6 +112,68 @@ describe("persistence — propriétés de correction", () => {
       }),
       { numRuns: 100 },
     );
+  });
+
+  it("rejette les états désérialisés avec des champs dépassant les limites de taille (sécurité)", () => {
+    const validBase = {
+      support: null,
+      pack: null,
+      options: [],
+      lieu: {
+        type: null,
+        address: "Paris",
+        addressValidated: false,
+        noElectricity: false,
+      },
+      creneauId: null,
+      devis: {
+        prenom: "Jean",
+        telephone: "0612345678",
+        besoin: "Nettoyage canapé",
+      },
+    };
+
+    // 1. Adresse trop longue
+    const badAddress = {
+      ...validBase,
+      lieu: { ...validBase.lieu, address: "A".repeat(301) },
+    };
+    expect(deserialize(serialize(badAddress))).toBeNull();
+
+    // 2. Prénom trop long
+    const badPrenom = {
+      ...validBase,
+      devis: { ...validBase.devis, prenom: "J".repeat(101) },
+    };
+    expect(deserialize(serialize(badPrenom))).toBeNull();
+
+    // 3. Téléphone trop long
+    const badPhone = {
+      ...validBase,
+      devis: { ...validBase.devis, telephone: "0".repeat(31) },
+    };
+    expect(deserialize(serialize(badPhone))).toBeNull();
+
+    // 4. Besoin trop long
+    const badBesoin = {
+      ...validBase,
+      devis: { ...validBase.devis, besoin: "B".repeat(2001) },
+    };
+    expect(deserialize(serialize(badBesoin))).toBeNull();
+
+    // 5. Option trop longue
+    const badOption = {
+      ...validBase,
+      options: ["O".repeat(101)],
+    };
+    expect(deserialize(serialize(badOption))).toBeNull();
+
+    // 6. Creneau ID trop long
+    const badCreneau = {
+      ...validBase,
+      creneauId: "C".repeat(51),
+    };
+    expect(deserialize(serialize(badCreneau))).toBeNull();
   });
 
   // Feature: devis-questionnaire, Property 9: Round-trip de persistance — volet dégradation gracieuse : toute entrée corrompue (JSON invalide, mauvaise forme, clés manquantes ou supplémentaires) doit produire null.
