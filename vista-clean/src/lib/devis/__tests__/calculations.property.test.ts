@@ -89,7 +89,7 @@ const arbPriceTunnelState: fc.Arbitrary<TunnelState> = fc
     lieuType: fc.constantFrom("local", "domicile", null) as fc.Arbitrary<
       "local" | "domicile" | null
     >,
-    address: fc.string(),
+    address: fc.string({ maxLength: 300 }),
     addressValidated: fc.boolean(),
     noElectricity: fc.boolean(),
   })
