@@ -42,18 +42,23 @@ const lieuTypeSchema: z.ZodType<LieuType> = z.enum(["local", "domicile"]);
 export const tunnelStateSchema: z.ZodType<TunnelState> = z.strictObject({
   support: supportIdSchema.nullable(),
   pack: packIdSchema.nullable(),
-  options: z.array(z.string()),
+  options: z
+    .array(z.string().max(100, { message: "l'option est trop longue (maximum 100 caractères)" }))
+    .max(100, { message: "trop d'options sélectionnées (maximum 100)" }),
   lieu: z.strictObject({
     type: lieuTypeSchema.nullable(),
-    address: z.string(),
+    address: z.string().max(300, { message: "l'adresse est trop longue (maximum 300 caractères)" }),
     addressValidated: z.boolean(),
     noElectricity: z.boolean(),
   }),
-  creneauId: z.string().nullable(),
+  creneauId: z
+    .string()
+    .max(100, { message: "l'identifiant du créneau est trop long (maximum 100 caractères)" })
+    .nullable(),
   devis: z.strictObject({
-    prenom: z.string(),
-    telephone: z.string(),
-    besoin: z.string(),
+    prenom: z.string().max(100, { message: "le prénom est trop long (maximum 100 caractères)" }),
+    telephone: z.string().max(30, { message: "le numéro de téléphone est trop long (maximum 30 caractères)" }),
+    besoin: z.string().max(2000, { message: "la description du besoin est trop longue (maximum 2000 caractères)" }),
   }),
 });
 
