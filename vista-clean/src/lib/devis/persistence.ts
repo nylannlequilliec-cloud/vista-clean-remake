@@ -42,18 +42,18 @@ const lieuTypeSchema: z.ZodType<LieuType> = z.enum(["local", "domicile"]);
 export const tunnelStateSchema: z.ZodType<TunnelState> = z.strictObject({
   support: supportIdSchema.nullable(),
   pack: packIdSchema.nullable(),
-  options: z.array(z.string()),
+  options: z.array(z.string().max(100)).max(50),
   lieu: z.strictObject({
     type: lieuTypeSchema.nullable(),
-    address: z.string(),
+    address: z.string().max(300),
     addressValidated: z.boolean(),
     noElectricity: z.boolean(),
   }),
-  creneauId: z.string().nullable(),
+  creneauId: z.string().max(100).nullable(),
   devis: z.strictObject({
-    prenom: z.string(),
-    telephone: z.string(),
-    besoin: z.string(),
+    prenom: z.string().max(100),
+    telephone: z.string().max(30),
+    besoin: z.string().max(2000),
   }),
 });
 
