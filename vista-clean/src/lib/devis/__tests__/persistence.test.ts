@@ -42,18 +42,18 @@ const lieuTypes: LieuType[] = ["local", "domicile"];
 const arbTunnelState: fc.Arbitrary<TunnelState> = fc.record({
   support: fc.constantFrom<SupportId | null>(...supportIds, null),
   pack: fc.constantFrom<PackId | null>(...packIds, null),
-  options: fc.array(fc.string()),
+  options: fc.array(fc.string({ maxLength: 100 }), { maxLength: 50 }),
   lieu: fc.record({
     type: fc.constantFrom<LieuType | null>(...lieuTypes, null),
-    address: fc.string(),
+    address: fc.string({ maxLength: 300 }),
     addressValidated: fc.boolean(),
     noElectricity: fc.boolean(),
   }),
-  creneauId: fc.option(fc.string(), { nil: null }),
+  creneauId: fc.option(fc.string({ maxLength: 100 }), { nil: null }),
   devis: fc.record({
-    prenom: fc.string(),
-    telephone: fc.string(),
-    besoin: fc.string(),
+    prenom: fc.string({ maxLength: 100 }),
+    telephone: fc.string({ maxLength: 30 }),
+    besoin: fc.string({ maxLength: 2000 }),
   }),
 });
 
@@ -123,5 +123,37 @@ describe("persistence — propriétés de correction", () => {
       }),
       { numRuns: 100 },
     );
+  });
+
+  it("deserialize rejette les chaînes dépassant la taille maximale autorisée (prévention DoS storage)", () => {
+    const validBase: TunnelState = {
+      support: "citadine",
+      pack: "confort",
+      options: [],
+      lieu: { type: "local", address: "", addressValidated: false, noElectricity: false },
+      creneauId: null,
+      devis: { prenom: "Jean", telephone: "0612345678", besoin: "Lavage" },
+    };
+
+    // Oversized prenom (> 100 chars)
+    const oversizedPrenom = JSON.stringify({
+      ...validBase,
+      devis: { ...validBase.devis, prenom: "A".repeat(101) },
+    });
+    expect(deserialize(oversizedPrenom)).toBeNull();
+
+    // Oversized address (> 300 chars)
+    const oversizedAddress = JSON.stringify({
+      ...validBase,
+      lieu: { ...validBase.lieu, address: "B".repeat(301) },
+    });
+    expect(deserialize(oversizedAddress)).toBeNull();
+
+    // Oversized besoin (> 2000 chars)
+    const oversizedBesoin = JSON.stringify({
+      ...validBase,
+      devis: { ...validBase.devis, besoin: "C".repeat(2001) },
+    });
+    expect(deserialize(oversizedBesoin)).toBeNull();
   });
 });
