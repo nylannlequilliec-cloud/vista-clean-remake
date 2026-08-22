@@ -179,6 +179,22 @@ describe("devisSchema length constraints", () => {
   });
 });
 
+describe("optionsSchema and paiementSchema length constraints", () => {
+  it("rejette les identifiants d'option ou le nombre d'options trop grands", () => {
+    const optionsSchema = stepSchemas.options;
+    expect(optionsSchema.safeParse({ options: ["a".repeat(100)] }).success).toBe(true);
+    expect(optionsSchema.safeParse({ options: ["a".repeat(101)] }).success).toBe(false);
+    expect(optionsSchema.safeParse({ options: Array(50).fill("opt") }).success).toBe(true);
+    expect(optionsSchema.safeParse({ options: Array(51).fill("opt") }).success).toBe(false);
+  });
+
+  it("rejette les créneaux dépassant 100 caractères", () => {
+    const paiementSchema = stepSchemas.paiement;
+    expect(paiementSchema.safeParse({ creneauId: "c".repeat(100) }).success).toBe(true);
+    expect(paiementSchema.safeParse({ creneauId: "c".repeat(101) }).success).toBe(false);
+  });
+});
+
 describe("lieuSchema length constraints", () => {
   it("rejette les adresses dépassant 300 caractères", () => {
     const lieuSchema = stepSchemas.lieu;
