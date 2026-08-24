@@ -179,6 +179,41 @@ describe("devisSchema length constraints", () => {
   });
 });
 
+describe("optionsSchema and paiementSchema length constraints", () => {
+  it("rejette les options contenant une chaîne dépassant 100 caractères", () => {
+    const optionsSchema = stepSchemas.options;
+    expect(optionsSchema.safeParse({ options: ["A".repeat(100)] }).success).toBe(true);
+
+    const result = optionsSchema.safeParse({ options: ["A".repeat(101)] });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toContain("identifiant d'option trop long");
+    }
+  });
+
+  it("rejette plus de 50 options", () => {
+    const optionsSchema = stepSchemas.options;
+    expect(optionsSchema.safeParse({ options: Array(50).fill("opt") }).success).toBe(true);
+
+    const result = optionsSchema.safeParse({ options: Array(51).fill("opt") });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toContain("trop d'options sélectionnées");
+    }
+  });
+
+  it("rejette les creneauId dépassant 100 caractères", () => {
+    const paiementSchema = stepSchemas.paiement;
+    expect(paiementSchema.safeParse({ creneauId: "C".repeat(100) }).success).toBe(true);
+
+    const result = paiementSchema.safeParse({ creneauId: "C".repeat(101) });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toContain("l'identifiant de créneau est trop long");
+    }
+  });
+});
+
 describe("lieuSchema length constraints", () => {
   it("rejette les adresses dépassant 300 caractères", () => {
     const lieuSchema = stepSchemas.lieu;
