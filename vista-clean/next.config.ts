@@ -7,6 +7,11 @@ const nextConfig: NextConfig = {
       {
         source: "/(.*)",
         headers: [
+          // Enforce HTTPS-only connections and prevent SSL stripping / MITM attacks (HSTS)
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
+          },
           {
             key: "X-Frame-Options",
             value: "DENY",
