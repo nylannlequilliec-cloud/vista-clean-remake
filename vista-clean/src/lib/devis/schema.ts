@@ -68,9 +68,10 @@ const packSchema = z.object({
 
 /**
  * Étape 3 (Options) : toujours valide (multi-sélection, zéro autorisé).
+ * Maximum 50 options et 100 caractères par option pour éviter DoS / stockage excessif.
  */
 const optionsSchema = z.object({
-  options: z.array(z.string()),
+  options: z.array(z.string().max(100)).max(50),
 });
 
 /**
