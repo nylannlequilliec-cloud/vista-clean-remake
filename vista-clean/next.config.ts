@@ -23,6 +23,11 @@ const nextConfig: NextConfig = {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=()",
           },
+          // Security Enhancement: HSTS prevents SSL stripping and protocol downgrade attacks
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
+          },
           {
             key: "Content-Security-Policy",
             value:
