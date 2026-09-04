@@ -179,6 +179,28 @@ describe("devisSchema length constraints", () => {
   });
 });
 
+describe("optionsSchema and paiementSchema length constraints", () => {
+  it("rejette les options contenant une chaîne dépassant 100 caractères", () => {
+    const optionsSchema = stepSchemas.options;
+    expect(optionsSchema.safeParse({ options: ["A".repeat(100)] }).success).toBe(true);
+    expect(optionsSchema.safeParse({ options: ["A".repeat(101)] }).success).toBe(false);
+  });
+
+  it("rejette plus de 50 options", () => {
+    const optionsSchema = stepSchemas.options;
+    const array50 = Array.from({ length: 50 }, (_, i) => `opt-${i}`);
+    const array51 = Array.from({ length: 51 }, (_, i) => `opt-${i}`);
+    expect(optionsSchema.safeParse({ options: array50 }).success).toBe(true);
+    expect(optionsSchema.safeParse({ options: array51 }).success).toBe(false);
+  });
+
+  it("rejette un creneauId dépassant 100 caractères", () => {
+    const paiementSchema = stepSchemas.paiement;
+    expect(paiementSchema.safeParse({ creneauId: "C".repeat(100) }).success).toBe(true);
+    expect(paiementSchema.safeParse({ creneauId: "C".repeat(101) }).success).toBe(false);
+  });
+});
+
 describe("lieuSchema length constraints", () => {
   it("rejette les adresses dépassant 300 caractères", () => {
     const lieuSchema = stepSchemas.lieu;
