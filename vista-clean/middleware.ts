@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-export function proxy(request: NextRequest) {
+export default function middleware(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
   const isDevelopment = process.env.NODE_ENV === "development";
   const csp = [
@@ -24,9 +24,7 @@ export function proxy(request: NextRequest) {
   requestHeaders.set("x-nonce", nonce);
   requestHeaders.set("Content-Security-Policy", csp);
 
-  const response = NextResponse.next({
-    request: { headers: requestHeaders },
-  });
+  const response = NextResponse.next({ request: { headers: requestHeaders } });
   response.headers.set("Content-Security-Policy", csp);
   return response;
 }
