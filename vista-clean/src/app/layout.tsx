@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
@@ -61,11 +62,13 @@ export const metadata: Metadata = {
 
 import { AnimatedBackground } from "@/components/layout/animated-background";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
+
   return (
     <html
       lang="fr"
@@ -75,6 +78,7 @@ export default function RootLayout({
       <head>
         <script
           type="application/ld+json"
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
@@ -99,6 +103,7 @@ export default function RootLayout({
           }}
         />
         <script
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: `(function(){var d=document.documentElement;var p=new URLSearchParams(window.location.search);if(p.get('theme')==='light'){d.classList.remove('dark')}else{d.classList.add('dark')}})()`,
           }}
