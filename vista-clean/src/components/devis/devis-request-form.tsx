@@ -216,7 +216,11 @@ function DevisRequestForm({ form, onSubmit }: DevisRequestFormProps) {
         ) : null}
       </div>
 
-      <Button type="submit" size="lg" className="h-11 w-full sm:w-auto sm:self-end">
+      <Button
+        type="submit"
+        size="lg"
+        className="h-11 w-full sm:w-auto sm:self-end"
+      >
         Envoyer ma demande de devis
       </Button>
     </form>

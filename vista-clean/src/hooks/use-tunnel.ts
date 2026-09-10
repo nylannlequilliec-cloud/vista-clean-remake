@@ -77,30 +77,12 @@ const STEP_FIELDS: Record<StepId, FieldPath<TunnelState>[]> = {
   paiement: ["creneauId"],
 };
 
-/** Résultat de l'initialisation du paiement par le prestataire. */
-interface PaymentResult {
-  success: boolean;
-  error?: string;
-}
-
-/**
- * ─────────────────────────────────────────────────────────────────────────
- * STUB DE PAIEMENT — À REMPLACER PAR L'INTÉGRATION RÉELLE
- * ─────────────────────────────────────────────────────────────────────────
- * Le règlement de l'acompte est délégué à un prestataire de paiement sécurisé
- * (hors périmètre de la couche logique du Tunnel). Cette fonction est un
- * marqueur clairement identifié : elle NE réalise AUCUN paiement réel.
- *
- * SÉCURITÉ : l'appel réel devra passer par un endpoint d'initialisation
- * authentifié et validé côté serveur ; aucun secret de paiement ne doit être
- * manipulé côté client au-delà de l'initialisation fournie par le prestataire.
- */
+/** Démo vitrine : remplacera l'intégration serveur lors du branchement réel. */
 async function initiatePaymentPlaceholder(
   _state: TunnelState,
   _pricing: PricingBreakdown,
-): Promise<PaymentResult> {
-  // TODO(devis-questionnaire): appeler le prestataire de paiement sécurisé.
-  return { success: true };
+): Promise<void> {
+  return Promise.resolve();
 }
 
 /** Contrat de retour du hook `useTunnel`. */
@@ -223,18 +205,13 @@ export function useTunnel(): UseTunnelReturn {
 
   const submitReservation = useCallback(async () => {
     const current = form.getValues();
-    const result = await initiatePaymentPlaceholder(current, computeTotal(current));
+    await initiatePaymentPlaceholder(current, computeTotal(current));
 
-    if (result.success) {
-      // Succès : on efface la persistance et on réinitialise le Tunnel
-      // (Requirement 12.4).
-      clearState();
-      lastSupportRef.current = null;
-      form.reset(INITIAL_TUNNEL_STATE);
-      setActiveIndex(0);
-    }
-    // Échec : l'`État_Tunnel` est conservé afin de permettre une nouvelle
-    // tentative (Requirement 8.9). On ne touche ni à l'état ni à la persistance.
+    // Démo vitrine : l'accusé de réception est simulé jusqu'au branchement réel.
+    clearState();
+    lastSupportRef.current = null;
+    form.reset(INITIAL_TUNNEL_STATE);
+    setActiveIndex(0);
   }, [form]);
 
   return {

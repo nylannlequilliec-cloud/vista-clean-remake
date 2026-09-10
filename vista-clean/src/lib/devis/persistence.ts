@@ -127,7 +127,23 @@ export function saveState(state: TunnelState): void {
   if (!storage) return;
 
   try {
-    storage.setItem(STORAGE_KEY, serialize(state));
+    // Le stockage navigateur est lisible par tout script same-origin et n'est
+    // donc jamais un coffre-fort. Les données personnelles ne sont pas
+    // persistées, même si elles existent dans l'état React courant.
+    const safeState: TunnelState = {
+      ...state,
+      lieu: {
+        ...state.lieu,
+        address: "",
+        addressValidated: false,
+      },
+      devis: {
+        prenom: "",
+        telephone: "",
+        besoin: "",
+      },
+    };
+    storage.setItem(STORAGE_KEY, serialize(safeState));
   } catch {
     // Dégradation gracieuse : quota dépassé, stockage en lecture seule, etc.
   }

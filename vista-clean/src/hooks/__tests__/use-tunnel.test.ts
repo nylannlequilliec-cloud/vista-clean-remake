@@ -9,7 +9,7 @@
 // Requirements: 1.2, 12.2, 12.4, 4.6
 
 import { act, renderHook } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { INITIAL_TUNNEL_STATE, useTunnel } from "../use-tunnel";
 import { STORAGE_KEY, serialize } from "../../lib/devis/persistence";
@@ -25,10 +25,12 @@ function makeState(overrides: Partial<TunnelState>): TunnelState {
 
 beforeEach(() => {
   window.localStorage.clear();
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, status: 200 }));
 });
 
 afterEach(() => {
   window.localStorage.clear();
+  vi.unstubAllGlobals();
 });
 
 describe("useTunnel", () => {

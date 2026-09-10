@@ -13,7 +13,7 @@
 //
 // Requirements: 8.8, 8.9, 8.10, 12.4, 16.1, 16.2, 16.4, 16.5
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
@@ -98,6 +98,7 @@ function seedCompleteState() {
 beforeEach(() => {
   submitState.override = null;
   window.localStorage.clear();
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, status: 200 }));
 
   // Stubs jsdom pour les composants qui pourraient interroger l'environnement.
   if (!window.matchMedia) {
@@ -115,6 +116,10 @@ beforeEach(() => {
       }),
     });
   }
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
 });
 
 // ─────────────────────────────────────────────────────────────────────────

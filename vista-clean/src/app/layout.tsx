@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
@@ -61,16 +62,18 @@ export const metadata: Metadata = {
 
 import { AnimatedBackground } from "@/components/layout/animated-background";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  await connection();
+
   return (
     <html
       lang="fr"
       suppressHydrationWarning
-      className={`${inter.variable} ${spaceGrotesk.variable} h-full antialiased`}
+      className={`${inter.variable} ${spaceGrotesk.variable} dark h-full antialiased`}
     >
       <head>
         <script
@@ -96,11 +99,6 @@ export default function RootLayout({
                 "https://www.tiktok.com/@vistaclean_",
               ],
             }),
-          }}
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){var d=document.documentElement;var p=new URLSearchParams(window.location.search);if(p.get('theme')==='light'){d.classList.remove('dark')}else{d.classList.add('dark')}})()`,
           }}
         />
       </head>

@@ -97,6 +97,7 @@ export function TunnelClient() {
    * permettre une nouvelle tentative (Requirements 8.8, 8.9, 8.10).
    */
   const handleReserve = async () => {
+    if (status === "submitting") return;
     setStatus("submitting");
     try {
       await submitReservation();
