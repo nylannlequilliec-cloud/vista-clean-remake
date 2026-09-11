@@ -70,7 +70,7 @@ const packSchema = z.object({
  * Étape 3 (Options) : toujours valide (multi-sélection, zéro autorisé).
  */
 const optionsSchema = z.object({
-  options: z.array(z.string()),
+  options: z.array(z.string().max(100)).max(50),
 });
 
 /**
@@ -81,7 +81,7 @@ const lieuSchema = z.object({
   lieu: z
     .object({
       type: z.enum(["local", "domicile"]).nullable(),
-      address: z.string(),
+      address: z.string().max(300, { message: "l'adresse ne doit pas dépasser 300 caractères" }),
       addressValidated: z.boolean(),
       noElectricity: z.boolean(),
     })
@@ -121,6 +121,7 @@ const lieuSchema = z.object({
 const paiementSchema = z.object({
   creneauId: z
     .string()
+    .max(100)
     .nullable()
     .refine((value): value is string => value !== null, {
       message: "veuillez sélectionner un créneau",
@@ -144,14 +145,20 @@ export const stepSchemas: Record<StepId, z.ZodType> = {
  * description du besoin non vides, téléphone français valide.
  */
 export const devisSchema = z.object({
-  prenom: z.string().trim().min(1, { message: "le prénom est requis" }),
+  prenom: z
+    .string()
+    .trim()
+    .min(1, { message: "le prénom est requis" })
+    .max(100, { message: "le prénom ne doit pas dépasser 100 caractères" }),
   telephone: z
     .string()
+    .max(30, { message: "numéro de téléphone trop long" })
     .refine(isValidFrenchPhone, {
       message: "numéro de téléphone français invalide",
     }),
   besoin: z
     .string()
     .trim()
-    .min(1, { message: "la description du besoin est requise" }),
+    .min(1, { message: "la description du besoin est requise" })
+    .max(2000, { message: "la description du besoin ne doit pas dépasser 2000 caractères" }),
 });

@@ -5,7 +5,7 @@
 import { describe, expect, it } from "vitest";
 import fc from "fast-check";
 
-import { isValidFrenchPhone } from "../schema";
+import { devisSchema, isValidFrenchPhone } from "../schema";
 
 const NUM_RUNS = 100;
 
@@ -117,5 +117,32 @@ describe("isValidFrenchPhone", () => {
     expect(isValidFrenchPhone("06 12 34 56")).toBe(false);
     expect(isValidFrenchPhone("+34 6 12 34 56 78")).toBe(false);
     expect(isValidFrenchPhone("abcdefghij")).toBe(false);
+  });
+});
+
+describe("devisSchema", () => {
+  it("valide une saisie dans les limites de longueur", () => {
+    const valid = devisSchema.safeParse({
+      prenom: "Jean",
+      telephone: "06 12 34 56 78",
+      besoin: "Nettoyage canapé 3 places",
+    });
+    expect(valid.success).toBe(true);
+  });
+
+  it("rejette une saisie dépassant les limites de longueur", () => {
+    const invalidPrenom = devisSchema.safeParse({
+      prenom: "a".repeat(101),
+      telephone: "06 12 34 56 78",
+      besoin: "Besoin",
+    });
+    expect(invalidPrenom.success).toBe(false);
+
+    const invalidBesoin = devisSchema.safeParse({
+      prenom: "Jean",
+      telephone: "06 12 34 56 78",
+      besoin: "a".repeat(2001),
+    });
+    expect(invalidBesoin.success).toBe(false);
   });
 });
