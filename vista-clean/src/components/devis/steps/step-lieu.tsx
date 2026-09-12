@@ -187,6 +187,7 @@ function StepLieu({ form }: StepLieuProps) {
               <input
                 id={addressFieldId}
                 type="text"
+                maxLength={500}
                 inputMode="text"
                 autoComplete="street-address"
                 value={lieu.address}
