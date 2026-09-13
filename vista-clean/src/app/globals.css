@@ -167,3 +167,11 @@ html {
   background: oklch(0.5 0.25 290 / 25%);
 }
 
+/* Ambient water layer: bubbles and soft droplets above the existing background. */
+body{position:relative;isolation:isolate;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.34;background:radial-gradient(circle at 11% 25%,#ffffff16 0 2px,transparent 3px),radial-gradient(circle at 21% 72%,#d8b4fe20 0 8px,transparent 9px),radial-gradient(circle at 37% 19%,#ffffff13 0 3px,transparent 4px),radial-gradient(circle at 56% 69%,#a855f71c 0 15px,transparent 16px),radial-gradient(circle at 74% 31%,#ffffff18 0 4px,transparent 5px),radial-gradient(circle at 86% 76%,#d8b4fe17 0 10px,transparent 11px),radial-gradient(circle at 92% 13%,#ffffff14 0 2px,transparent 3px);mix-blend-mode:screen;animation:water-drift 18s ease-in-out infinite alternate}
+body::after{content:"";position:fixed;inset:-20%;z-index:0;pointer-events:none;opacity:.2;background:radial-gradient(ellipse at 20% 40%,#a855f724,transparent 32%),radial-gradient(ellipse at 82% 65%,#d8b4fe16,transparent 28%);filter:blur(20px);animation:water-glow 22s ease-in-out infinite alternate}
+body>*{position:relative;z-index:1}
+@keyframes water-drift{from{transform:translate3d(-1%,0,0) scale(1)}to{transform:translate3d(1%,1.5%,0) scale(1.03)}}
+@keyframes water-glow{from{transform:rotate(-2deg) scale(1)}to{transform:rotate(2deg) scale(1.08)}}
+@media(prefers-reduced-motion:reduce){body::before,body::after{animation:none}}
