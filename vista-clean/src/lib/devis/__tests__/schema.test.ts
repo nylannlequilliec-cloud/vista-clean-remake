@@ -5,7 +5,7 @@
 import { describe, expect, it } from "vitest";
 import fc from "fast-check";
 
-import { isValidFrenchPhone } from "../schema";
+import { devisSchema, isValidFrenchPhone, stepSchemas } from "../schema";
 
 const NUM_RUNS = 100;
 
@@ -117,5 +117,59 @@ describe("isValidFrenchPhone", () => {
     expect(isValidFrenchPhone("06 12 34 56")).toBe(false);
     expect(isValidFrenchPhone("+34 6 12 34 56 78")).toBe(false);
     expect(isValidFrenchPhone("abcdefghij")).toBe(false);
+  });
+});
+
+describe("devisSchema & max length validation", () => {
+  it("valide une demande de devis dans les limites de longueur", () => {
+    const valid = {
+      prenom: "Jean",
+      telephone: "06 12 34 56 78",
+      besoin: "Nettoyage d'un canapé 3 places",
+    };
+    expect(devisSchema.safeParse(valid).success).toBe(true);
+  });
+
+  it("rejette un prénom dépassant 100 caractères", () => {
+    const invalid = {
+      prenom: "A".repeat(101),
+      telephone: "06 12 34 56 78",
+      besoin: "Nettoyage canapé",
+    };
+    const result = devisSchema.safeParse(invalid);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0]?.message).toBe(
+        "le prénom ne peut pas dépasser 100 caractères",
+      );
+    }
+  });
+
+  it("rejette une description du besoin dépassant 2000 caractères", () => {
+    const invalid = {
+      prenom: "Jean",
+      telephone: "06 12 34 56 78",
+      besoin: "B".repeat(2001),
+    };
+    const result = devisSchema.safeParse(invalid);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0]?.message).toBe(
+        "la description du besoin ne peut pas dépasser 2000 caractères",
+      );
+    }
+  });
+
+  it("rejette une adresse à domicile dépassant 200 caractères dans lieuSchema", () => {
+    const invalidState = {
+      lieu: {
+        type: "domicile",
+        address: "C".repeat(201),
+        addressValidated: true,
+        noElectricity: false,
+      },
+    };
+    const result = stepSchemas.lieu.safeParse(invalidState);
+    expect(result.success).toBe(false);
   });
 });
