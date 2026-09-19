@@ -42,18 +42,18 @@ const lieuTypes: LieuType[] = ["local", "domicile"];
 const arbTunnelState: fc.Arbitrary<TunnelState> = fc.record({
   support: fc.constantFrom<SupportId | null>(...supportIds, null),
   pack: fc.constantFrom<PackId | null>(...packIds, null),
-  options: fc.array(fc.string()),
+  options: fc.array(fc.string({ maxLength: 100 }), { maxLength: 50 }),
   lieu: fc.record({
     type: fc.constantFrom<LieuType | null>(...lieuTypes, null),
-    address: fc.string(),
+    address: fc.string({ maxLength: 300 }),
     addressValidated: fc.boolean(),
     noElectricity: fc.boolean(),
   }),
-  creneauId: fc.option(fc.string(), { nil: null }),
+  creneauId: fc.option(fc.string({ maxLength: 100 }), { nil: null }),
   devis: fc.record({
-    prenom: fc.string(),
-    telephone: fc.string(),
-    besoin: fc.string(),
+    prenom: fc.string({ maxLength: 100 }),
+    telephone: fc.string({ maxLength: 30 }),
+    besoin: fc.string({ maxLength: 2000 }),
   }),
 });
 
@@ -123,5 +123,46 @@ describe("persistence — propriétés de correction", () => {
       }),
       { numRuns: 100 },
     );
+  });
+
+  it("deserialize rejette les chaînes dépassant les limites de longueur maximales", () => {
+    const validState: TunnelState = {
+      support: "citadine",
+      pack: "confort",
+      options: [],
+      lieu: {
+        type: "domicile",
+        address: "123 Rue de Paris",
+        addressValidated: true,
+        noElectricity: false,
+      },
+      creneauId: "slot-1",
+      devis: {
+        prenom: "Jean",
+        telephone: "0601020304",
+        besoin: "Nettoyage siège",
+      },
+    };
+
+    // Test oversize address (> 300 chars)
+    const oversizeAddressState = {
+      ...validState,
+      lieu: { ...validState.lieu, address: "A".repeat(301) },
+    };
+    expect(deserialize(JSON.stringify(oversizeAddressState))).toBeNull();
+
+    // Test oversize prenom (> 100 chars)
+    const oversizePrenomState = {
+      ...validState,
+      devis: { ...validState.devis, prenom: "B".repeat(101) },
+    };
+    expect(deserialize(JSON.stringify(oversizePrenomState))).toBeNull();
+
+    // Test oversize besoin (> 2000 chars)
+    const oversizeBesoinState = {
+      ...validState,
+      devis: { ...validState.devis, besoin: "C".repeat(2001) },
+    };
+    expect(deserialize(JSON.stringify(oversizeBesoinState))).toBeNull();
   });
 });
