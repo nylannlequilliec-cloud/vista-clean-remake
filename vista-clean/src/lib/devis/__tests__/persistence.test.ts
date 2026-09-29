@@ -42,18 +42,18 @@ const lieuTypes: LieuType[] = ["local", "domicile"];
 const arbTunnelState: fc.Arbitrary<TunnelState> = fc.record({
   support: fc.constantFrom<SupportId | null>(...supportIds, null),
   pack: fc.constantFrom<PackId | null>(...packIds, null),
-  options: fc.array(fc.string()),
+  options: fc.array(fc.string({ maxLength: 100 }), { maxLength: 50 }),
   lieu: fc.record({
     type: fc.constantFrom<LieuType | null>(...lieuTypes, null),
-    address: fc.string(),
+    address: fc.string({ maxLength: 300 }),
     addressValidated: fc.boolean(),
     noElectricity: fc.boolean(),
   }),
-  creneauId: fc.option(fc.string(), { nil: null }),
+  creneauId: fc.option(fc.string({ maxLength: 100 }), { nil: null }),
   devis: fc.record({
-    prenom: fc.string(),
-    telephone: fc.string(),
-    besoin: fc.string(),
+    prenom: fc.string({ maxLength: 100 }),
+    telephone: fc.string({ maxLength: 30 }),
+    besoin: fc.string({ maxLength: 2000 }),
   }),
 });
 
@@ -123,5 +123,26 @@ describe("persistence — propriétés de correction", () => {
       }),
       { numRuns: 100 },
     );
+  });
+
+  it("deserialize rejette les chaînes dépassant les limites de longueur maximales", () => {
+    const oversizedState = {
+      support: null,
+      pack: null,
+      options: [],
+      lieu: {
+        type: null,
+        address: "a".repeat(301), // Max is 300
+        addressValidated: false,
+        noElectricity: false,
+      },
+      creneauId: null,
+      devis: {
+        prenom: "Jean",
+        telephone: "0612345678",
+        besoin: "Test",
+      },
+    };
+    expect(deserialize(JSON.stringify(oversizedState))).toBeNull();
   });
 });
