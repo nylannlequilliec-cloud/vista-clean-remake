@@ -68,9 +68,11 @@ const packSchema = z.object({
 
 /**
  * Étape 3 (Options) : toujours valide (multi-sélection, zéro autorisé).
+ * Contraint la longueur des chaînes et le nombre d'options pour prévenir
+ * l'épuisement des ressources (DoS) et aligner le schéma avec la persistance.
  */
 const optionsSchema = z.object({
-  options: z.array(z.string()),
+  options: z.array(z.string().max(100)).max(50),
 });
 
 /**
