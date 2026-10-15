@@ -179,6 +179,26 @@ describe("devisSchema length constraints", () => {
   });
 });
 
+describe("optionsSchema length constraints", () => {
+  it("rejette les éléments d'options dépassant 100 caractères ou plus de 50 éléments", () => {
+    const optionsSchema = stepSchemas.options;
+    const validData = {
+      options: Array(50).fill("A".repeat(100)),
+    };
+    expect(optionsSchema.safeParse(validData).success).toBe(true);
+
+    const invalidStringData = {
+      options: ["A".repeat(101)],
+    };
+    expect(optionsSchema.safeParse(invalidStringData).success).toBe(false);
+
+    const invalidArrayData = {
+      options: Array(51).fill("option"),
+    };
+    expect(optionsSchema.safeParse(invalidArrayData).success).toBe(false);
+  });
+});
+
 describe("lieuSchema length constraints", () => {
   it("rejette les adresses dépassant 300 caractères", () => {
     const lieuSchema = stepSchemas.lieu;
