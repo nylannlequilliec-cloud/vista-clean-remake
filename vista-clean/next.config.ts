@@ -23,6 +23,17 @@ const nextConfig: NextConfig = {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=()",
           },
+          // Security Header Enhancements:
+          // Strict-Transport-Security (HSTS) forces browsers to use HTTPS, protecting against SSL stripping and MITM attacks.
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
+          },
+          // X-DNS-Prefetch-Control disables DNS prefetching to guard against DNS privacy leaks.
+          {
+            key: "X-DNS-Prefetch-Control",
+            value: "off",
+          },
         ],
       },
     ];
