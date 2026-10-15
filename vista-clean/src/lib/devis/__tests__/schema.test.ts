@@ -179,6 +179,29 @@ describe("devisSchema length constraints", () => {
   });
 });
 
+describe("optionsSchema length constraints", () => {
+  it("rejette les options de plus de 100 caractères ou un tableau de plus de 50 éléments", () => {
+    const optionsSchema = stepSchemas.options;
+    expect(optionsSchema.safeParse({ options: ["A".repeat(100)] }).success).toBe(true);
+    expect(optionsSchema.safeParse({ options: ["A".repeat(101)] }).success).toBe(false);
+
+    expect(optionsSchema.safeParse({ options: Array(50).fill("opt") }).success).toBe(true);
+    expect(optionsSchema.safeParse({ options: Array(51).fill("opt") }).success).toBe(false);
+  });
+});
+
+describe("paiementSchema length constraints", () => {
+  it("rejette un créneauId dépassant 100 caractères", () => {
+    const paiementSchema = stepSchemas.paiement;
+    expect(paiementSchema.safeParse({ creneauId: "C".repeat(100) }).success).toBe(true);
+    const result = paiementSchema.safeParse({ creneauId: "C".repeat(101) });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toContain("l'identifiant de créneau est trop long");
+    }
+  });
+});
+
 describe("lieuSchema length constraints", () => {
   it("rejette les adresses dépassant 300 caractères", () => {
     const lieuSchema = stepSchemas.lieu;
