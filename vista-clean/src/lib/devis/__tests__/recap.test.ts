@@ -38,13 +38,13 @@ const arbTunnelState: fc.Arbitrary<TunnelState> = fc
     lieuType: fc.constantFrom("local", "domicile", null) as fc.Arbitrary<
       "local" | "domicile" | null
     >,
-    address: fc.string(),
+    address: fc.string({ maxLength: 300 }),
     addressValidated: fc.boolean(),
     noElectricity: fc.boolean(),
-    creneauId: fc.option(fc.string(), { nil: null }),
-    prenom: fc.string(),
-    telephone: fc.string(),
-    besoin: fc.string(),
+    creneauId: fc.option(fc.string({ maxLength: 100 }), { nil: null }),
+    prenom: fc.string({ maxLength: 100 }),
+    telephone: fc.string({ maxLength: 30 }),
+    besoin: fc.string({ maxLength: 2000 }),
   })
   .map((r) => ({
     support: r.support,

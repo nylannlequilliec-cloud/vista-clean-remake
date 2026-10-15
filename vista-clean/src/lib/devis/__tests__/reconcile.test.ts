@@ -25,15 +25,15 @@ const arbTunnelState: fc.Arbitrary<TunnelState> = fc.record({
   options: fc.uniqueArray(fc.constantFrom(...OPTION_IDS)),
   lieu: fc.record({
     type: fc.option(fc.constantFrom(...LIEU_TYPES), { nil: null }),
-    address: fc.string(),
+    address: fc.string({ maxLength: 300 }),
     addressValidated: fc.boolean(),
     noElectricity: fc.boolean(),
   }),
-  creneauId: fc.option(fc.string(), { nil: null }),
+  creneauId: fc.option(fc.string({ maxLength: 100 }), { nil: null }),
   devis: fc.record({
-    prenom: fc.string(),
-    telephone: fc.string(),
-    besoin: fc.string(),
+    prenom: fc.string({ maxLength: 100 }),
+    telephone: fc.string({ maxLength: 30 }),
+    besoin: fc.string({ maxLength: 2000 }),
   }),
 });
 
