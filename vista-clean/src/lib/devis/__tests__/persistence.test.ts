@@ -38,22 +38,23 @@ const lieuTypes: LieuType[] = ["local", "domicile"];
  * acceptée par le schéma Zod (`strictObject`). Aucune clé supplémentaire n'est
  * générée dans les objets stricts (support, pack, lieu, devis) sous peine de
  * rejet par la validation.
+ * Respecte les contraintes strictes de sécurité de longueur de chaines.
  */
 const arbTunnelState: fc.Arbitrary<TunnelState> = fc.record({
   support: fc.constantFrom<SupportId | null>(...supportIds, null),
   pack: fc.constantFrom<PackId | null>(...packIds, null),
-  options: fc.array(fc.string()),
+  options: fc.array(fc.string({ maxLength: 100 }), { maxLength: 100 }),
   lieu: fc.record({
     type: fc.constantFrom<LieuType | null>(...lieuTypes, null),
-    address: fc.string(),
+    address: fc.string({ maxLength: 300 }),
     addressValidated: fc.boolean(),
     noElectricity: fc.boolean(),
   }),
-  creneauId: fc.option(fc.string(), { nil: null }),
+  creneauId: fc.option(fc.string({ maxLength: 100 }), { nil: null }),
   devis: fc.record({
-    prenom: fc.string(),
-    telephone: fc.string(),
-    besoin: fc.string(),
+    prenom: fc.string({ maxLength: 100 }),
+    telephone: fc.string({ maxLength: 30 }),
+    besoin: fc.string({ maxLength: 2000 }),
   }),
 });
 
@@ -123,5 +124,93 @@ describe("persistence — propriétés de correction", () => {
       }),
       { numRuns: 100 },
     );
+  });
+});
+
+describe("persistence — contraintes de sécurité de longueur", () => {
+  const BASE_STATE: TunnelState = {
+    support: "citadine",
+    pack: "confort",
+    options: ["ozone"],
+    lieu: {
+      type: "domicile",
+      address: "123 Rue de la Paix",
+      addressValidated: true,
+      noElectricity: false,
+    },
+    creneauId: "slot-1",
+    devis: {
+      prenom: "Jean",
+      telephone: "0612345678",
+      besoin: "Nettoyage complet",
+    },
+  };
+
+  it("rejette un état désérialisé si le prénom dépasse 100 caractères", () => {
+    const invalidState = {
+      ...BASE_STATE,
+      devis: {
+        ...BASE_STATE.devis,
+        prenom: "A".repeat(101),
+      },
+    };
+    expect(deserialize(serialize(invalidState))).toBeNull();
+  });
+
+  it("rejette un état désérialisé si le téléphone dépasse 30 caractères", () => {
+    const invalidState = {
+      ...BASE_STATE,
+      devis: {
+        ...BASE_STATE.devis,
+        telephone: "0".repeat(31),
+      },
+    };
+    expect(deserialize(serialize(invalidState))).toBeNull();
+  });
+
+  it("rejette un état désérialisé si le besoin dépasse 2000 caractères", () => {
+    const invalidState = {
+      ...BASE_STATE,
+      devis: {
+        ...BASE_STATE.devis,
+        besoin: "A".repeat(2001),
+      },
+    };
+    expect(deserialize(serialize(invalidState))).toBeNull();
+  });
+
+  it("rejette un état désérialisé si l'adresse dépasse 300 caractères", () => {
+    const invalidState = {
+      ...BASE_STATE,
+      lieu: {
+        ...BASE_STATE.lieu,
+        address: "A".repeat(301),
+      },
+    };
+    expect(deserialize(serialize(invalidState))).toBeNull();
+  });
+
+  it("rejette un état désérialisé si un identifiant d'option dépasse 100 caractères", () => {
+    const invalidState = {
+      ...BASE_STATE,
+      options: ["A".repeat(101)],
+    };
+    expect(deserialize(serialize(invalidState))).toBeNull();
+  });
+
+  it("rejette un état désérialisé s'il y a plus de 100 options", () => {
+    const invalidState = {
+      ...BASE_STATE,
+      options: Array(101).fill("ozone"),
+    };
+    expect(deserialize(serialize(invalidState))).toBeNull();
+  });
+
+  it("rejette un état désérialisé si l'identifiant du créneau dépasse 100 caractères", () => {
+    const invalidState = {
+      ...BASE_STATE,
+      creneauId: "C".repeat(101),
+    };
+    expect(deserialize(serialize(invalidState))).toBeNull();
   });
 });

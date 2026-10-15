@@ -70,7 +70,9 @@ const packSchema = z.object({
  * Étape 3 (Options) : toujours valide (multi-sélection, zéro autorisé).
  */
 const optionsSchema = z.object({
-  options: z.array(z.string()),
+  options: z
+    .array(z.string().max(100, { message: "l'option est trop longue (maximum 100 caractères)" }))
+    .max(100, { message: "trop d'options sélectionnées (maximum 100)" }),
 });
 
 /**
@@ -121,6 +123,7 @@ const lieuSchema = z.object({
 const paiementSchema = z.object({
   creneauId: z
     .string()
+    .max(100, { message: "l'identifiant du créneau est trop long (maximum 100 caractères)" })
     .nullable()
     .refine((value): value is string => value !== null, {
       message: "veuillez sélectionner un créneau",
