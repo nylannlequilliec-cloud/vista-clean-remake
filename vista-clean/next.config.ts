@@ -23,6 +23,16 @@ const nextConfig: NextConfig = {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=()",
           },
+          {
+            // Protects against man-in-the-middle / SSL-stripping attacks by forcing HTTPS connections
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
+          },
+          {
+            // Controls DNS prefetching to ensure secure link handling
+            key: "X-DNS-Prefetch-Control",
+            value: "on",
+          },
         ],
       },
     ];
