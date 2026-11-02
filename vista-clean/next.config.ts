@@ -23,6 +23,16 @@ const nextConfig: NextConfig = {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=()",
           },
+          // Security: Enforce HTTPS and prevent SSL-stripping / downgrade attacks
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
+          },
+          // Security: Defense-in-depth against reflected cross-site scripting (XSS)
+          {
+            key: "X-XSS-Protection",
+            value: "1; mode=block",
+          },
         ],
       },
     ];
