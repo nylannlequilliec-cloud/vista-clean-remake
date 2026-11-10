@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Sentinel security hardening:
+  // 1. Disable X-Powered-By to prevent framework information disclosure
+  poweredByHeader: false,
   async headers() {
     return [
       {
@@ -22,6 +24,16 @@ const nextConfig: NextConfig = {
           {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=()",
+          },
+          // Enforce HTTPS transmission to mitigate SSL-stripping & MITM attacks
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
+          },
+          // Defense-in-depth XSS filter activation for legacy browsers
+          {
+            key: "X-XSS-Protection",
+            value: "1; mode=block",
           },
         ],
       },
